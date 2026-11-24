@@ -547,11 +547,30 @@ setBg(CUT ? "scene" : "photo");
 
 /* ---------------- sample playback: recorded lines, free to watch ---------------- */
 const sAudio = new Audio(); sAudio.preload = "auto";
-let sCtx = null, sAn = null, sBuf = null, play = null;
-function sampleAudioSetup() {               // must run inside a click, so the browser allows sound
-  if (!sCtx) try { sCtx = new (window.AudioContext || window.webkitAudioContext)(); const src = sCtx.createMediaElementSource(sAudio); sAn = sCtx.createAnalyser(); sAn.fftSize = 512; sBuf = new Uint8Array(512); src.connect(sAn); sAn.connect(sCtx.destination); } catch { sAn = null; }
-  sCtx?.resume?.();
+let play = null, sEnv = null;
+/* The clip plays as ordinary audio (never through Web Audio, which iPhones mute with the silent switch and Safari can leave
+   suspended). The mouth follows a loudness map of the clip, worked out once from its own samples: one value per 40 ms. */
+const ENV_STEP = 0.04, clipCache = new Map();
+async function loadClip(url) {
+  if (clipCache.has(url)) return clipCache.get(url);
+  const p = (async () => {
+    const r = await fetch(url); if (!r.ok) throw new Error("This sample could not be loaded.");
+    const bytes = await r.arrayBuffer(), blobUrl = URL.createObjectURL(new Blob([bytes], { type: r.headers.get("content-type") || "audio/wav" }));
+    let env = null;
+    try {
+      const OAC = window.OfflineAudioContext || window.webkitOfflineAudioContext, dec = await new OAC(1, 1, 24000).decodeAudioData(bytes.slice(0));
+      const d = dec.getChannelData(0), win = Math.max(1, Math.round(dec.sampleRate * ENV_STEP)); env = new Float32Array(Math.ceil(d.length / win));
+      for (let k = 0; k < env.length; k++) { let sum = 0; const a = k * win, b = Math.min(d.length, a + win); for (let j = a; j < b; j++) sum += d[j] * d[j]; env[k] = Math.sqrt(sum / Math.max(1, b - a)); }
+      const peak = Math.max(0.02, ...env); for (let k = 0; k < env.length; k++) env[k] = Math.min(1, env[k] / (peak * 0.7));
+    } catch { env = null; }          // no map: the mouth simply moves while she talks
+    return { blobUrl, env };
+  })();
+  clipCache.set(url, p); p.catch(() => clipCache.delete(url)); return p;
 }
+const clipUrl = (id, i) => `/api/samples?demo=${encodeURIComponent(id)}&i=${i}&v=${SAMPLES[id]?.v || 0}`;
+// Called inside the tap: phones only let a page play sound that starts from a tap, so the player is unlocked here with 10 ms of silence.
+const SILENCE = "data:audio/wav;base64,UklGRgQCAABXQVZFZm10IBAAAAABAAEAwF0AAIC7AAACABAAZGF0YeABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+function sampleAudioSetup() { sAudio.muted = false; sAudio.volume = 1; try { sAudio.src = SILENCE; sAudio.play().catch(() => {}); } catch { /* fine */ } }
 function watch(id) {
   who = id; sampleAudioSetup(); openStage("sample"); startAvatar();
   play = { id, step: 0, paused: false, timer: null }; $("pauseBtn").textContent = "Pause";
@@ -571,11 +590,15 @@ function runStep() {
     anim?.update({ emotion: t.emotion || "neutral", intensity: .6 }); $("roomScene").dataset.mood = t.emotion || "neutral";
     $("room").dataset.who = "ai"; $("whoNow").textContent = `${first(c)} is speaking`; $("caption").textContent = t.ai;
     $("phrase").hidden = !t.cap; if (t.cap) { $("phNative").textContent = t.cap.native; $("phRoman").textContent = t.cap.roman; $("phMeaning").textContent = t.cap.meaning; }
-    sAudio.onended = () => { $("room").dataset.who = "idle"; next(600); };
-    sAudio.src = `/api/samples?demo=${encodeURIComponent(play.id)}&i=${play.step}&v=${SAMPLES[play.id]?.v || 0}`;
-    const lead = (SAMPLES[play.id]?.lead?.[play.step] || 0) / 1000;
-    sAudio.onloadedmetadata = () => { if (lead > 0.15) try { sAudio.currentTime = Math.max(0, lead - 0.12); } catch { /* not seekable: play from the start */ } };
-    sAudio.play().catch(() => { $("whoNow").textContent = "Tap Play to hear the sample"; play.paused = true; $("pauseBtn").textContent = "Play"; });
+    sAudio.onended = () => { $("room").dataset.who = "idle"; sEnv = null; next(600); };
+    const me = play, step = play.step;
+    loadClip(clipUrl(play.id, step)).then(({ blobUrl, env }) => {
+      if (play !== me || play.step !== step) return;
+      sEnv = env; sAudio.src = blobUrl;
+      sAudio.play().catch(() => { $("whoNow").textContent = "Tap Play to hear the sample"; play.paused = true; $("pauseBtn").textContent = "Play"; });
+      const nx = CAST[play.id].script.findIndex((x, k) => k > step && x.ai); if (nx > 0) loadClip(clipUrl(play.id, nx)).catch(() => {});   // fetch the next line early
+    }).catch((err) => { $("whoNow").textContent = err.message; $("room").dataset.who = "idle"; });
+    return;
   } else {
     $("room").dataset.who = "you"; $("whoNow").textContent = c.language ? "Your turn: say it out loud!" : "You might say";
     $("caption").innerHTML = `“${esc(t.you)}”` + (t.roman ? `<span class="roman">${esc(t.roman)}</span>` : "");
@@ -585,7 +608,7 @@ function runStep() {
 $("pauseBtn").addEventListener("click", () => {
   if (!play) return;
   if (!play.paused) { play.paused = true; clearTimeout(play.timer); sAudio.pause(); $("pauseBtn").textContent = "Play"; return; }
-  play.paused = false; $("pauseBtn").textContent = "Pause"; sCtx?.resume?.();
+  play.paused = false; $("pauseBtn").textContent = "Pause";
   if (CAST[play.id].script[play.step]?.ai && sAudio.src && !sAudio.ended && sAudio.currentTime > 0) sAudio.play().catch(() => {}); else runStep();
 });
 $("replayBtn").addEventListener("click", () => { if (!who) return; sampleAudioSetup(); stopSample(); play = { id: who, step: 0, paused: false, timer: null }; $("pauseBtn").textContent = "Pause"; runStep(); });
@@ -721,8 +744,9 @@ setInterval(() => {
 }, 300);
 setInterval(() => {
   if ($("stage").hidden || (mode === "live" && !t0)) return;
-  const speaking = $("room").dataset.who === "ai", an = mode === "sample" ? sAn : analyser, ab = mode === "sample" ? sBuf : buf; let lvl = 0;
-  if (speaking && an) { an.getByteTimeDomainData(ab); let s = 0; for (const v of ab) s += (v - 128) ** 2; lvl = Math.min(1, Math.sqrt(s / ab.length) / 28); }
+  const speaking = $("room").dataset.who === "ai", an = mode === "sample" ? sEnv : analyser; let lvl = 0;
+  if (speaking && mode === "sample" && sEnv) lvl = sEnv[Math.min(sEnv.length - 1, Math.floor(sAudio.currentTime / ENV_STEP))] || 0;
+  else if (speaking && analyser) { analyser.getByteTimeDomainData(buf); let s = 0; for (const v of buf) s += (v - 128) ** 2; lvl = Math.min(1, Math.sqrt(s / buf.length) / 28); }
   $("room").style.setProperty("--lvl", lvl.toFixed(2));
   if (anim) { const m = { mouth: speaking ? (an ? lvl : 1) : 0 }; if (anim._spk !== speaking) m.speaking = anim._spk = speaking; anim.update(m); }
 }, 110);
