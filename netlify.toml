@@ -1,0 +1,18 @@
+# L'Infini Studio website. Static site in /public, two edge functions in /netlify/edge-functions (live voice, coaching notes).
+[build]
+  publish = "public"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Permissions-Policy = "microphone=(self)"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[headers]]
+  for = "/cast/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
