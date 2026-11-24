@@ -14,8 +14,10 @@ education-specific part taken out.
 | `public/vendor/facemesh/` | MediaPipe Face Mesh (Apache-2.0), served from this site so portraits never leave the device |
 | `public/cast/<id>/` | Each portrait (`neutral.jpg`), its expression and talking pictures, `thumb.jpg` and `points.json` (face points found ahead of time) |
 | `public/cast/<id>/cut/` | The same pictures with the background removed (transparent `.webp`), plus a copy of `points.json` |
-| `public/scenes/` | Optional. Put `interview.webp`, `customer.webp`, `smalltalk.webp` or `storyteller.webp` here to use a picture behind that character |
-| `server/characters.js` | The four characters: their instructions, voice and coaching rubric. Never sent to the browser |
+| `public/demos.js` | The nine demos: names, portraits, voices, briefs and sample scripts (shared by the page and the server) |
+| `public/scenes/` | Optional. Put `interview.webp`, `language.webp` or `talk.webp` here to use a picture behind that category's characters |
+| `server/characters.js` | How each character behaves live, coaching criteria, and the recording instructions. Never sent to the browser |
+| `server/samples.js`, `netlify/functions/samples.mjs` | `/api/samples`: saving, locking, listing and serving the sample recordings |
 | `server/access.js` | The access rules: guest codes, minute allowances, the daily ceiling, the per-network limit. `npm test` checks them |
 | `netlify/functions/session.mjs` | `/api/session`: checks access, reserves minutes, starts a live voice conversation, returns unused minutes when it ends |
 | `netlify/functions/feedback.mjs` | `/api/feedback`: coaching notes, one set per real conversation |
@@ -35,24 +37,46 @@ How minutes are counted: starting a conversation reserves its full length on the
 
 Belt and braces: give this site its own OpenAI project and key, and set a budget and alerts for that project in OpenAI's billing settings.
 
-## The cast
+## The demos (3 categories × 3)
 
-| Card | Character | Portrait | Voice | Coaching notes |
-| --- | --- | --- | --- | --- |
-| Workplace: the job interview | Grace Park, hiring manager | F09 | sage | Yes |
-| Workplace: the late replacement | Jess Carter, upset customer | F13 | coral | Yes |
-| Language & social: Saturday market | Ama Mensah, market baker | F05 | marin | Yes |
-| Stories & companions | Rosa, storyteller | F12 | shimmer | No |
+The scripts, names, portraits and voices are in `public/demos.js`. How each character behaves live is in `server/characters.js`.
 
-To change what a character says or does, edit `server/characters.js`. To change what the card and the brief show,
-edit the `CAST` list near the top of the script in `public/index.html`.
+| Category | Demo | Character | Portrait | Voice | Coaching notes |
+| --- | --- | --- | --- | --- | --- |
+| Job interviews | Marketing coordinator | Laura Bennett | F02 | gleam | Yes |
+| | Junior software engineer | Priya Raman | F11 | nira | Yes |
+| | Patient services coordinator (non-clinical) | Dolores Reyes | F03 | sage | Yes |
+| Language learning (same café meet-up) | Korean | Seo-yeon | F09 | noeul | Yes |
+| | Japanese | Hana | F08 | harema | Yes |
+| | Mandarin Chinese | Sophie | F04 | coral | Yes |
+| Talk it through (same worry, three attitudes) | Supportive | Ama | F05 | marin | No |
+| | Mentor | Rosa | F12 | shimmer | No |
+| | Joker | Jess | F13 | gleam | No |
+
+The language demos teach hello, nice to meet you, culture-specific small talk, thank you and goodbye, with a phrase card
+(native script, romanization, meaning). The Talk it through characters are companions, not therapy: their instructions
+step out of character and point to 988 (US) or local help if someone mentions a crisis, and the page says so.
+
+## Sample recordings (free for visitors)
+
+Each card has **Watch sample** (free, recorded) and **Talk live** (needs a guest code). Samples are recorded once, from the Studio:
+
+1. Studio → **Sample recordings** → **Record samples** on a demo (or **Record all missing samples**). Use Chrome; keep the tab open.
+2. Each character line is spoken once by the live voice (`gpt-live-1`, the character's own voice), recorded in your browser,
+   trimmed of silence, saved as a 24 kHz WAV, and checked against the script. A take whose words drift is retried, up to 3 tries.
+3. When every line is saved, the demo **locks**: nothing more can be recorded or replaced for it. A line whose words still
+   didn't match closely is flagged; listen with **Preview**.
+4. To redo a demo, **Delete samples…** (type DELETE to confirm), then record again.
+
+The recording request only names a demo and a line number; the words come from the script on the server, so nothing else
+can be recorded with your key. The visitor lines ("You might say…") are shown as text, never recorded.
 
 ## Backdrops: adaptive scene or original photo
 
 Visitors choose with the **Scene / Photo** switch (on the cast section and on the stage); the choice is remembered on their device. Default: Scene.
 
 - **Scene:** the portrait's background is removed and the character stands in a lit backdrop that fits the scene
-  (office, support desk, market, firelight) and adapts to their mood as they talk: warmer and brighter when they are
+  (an office, a café, a cosy lamp-lit corner) and adapts to their mood as they talk: warmer and brighter when they are
   pleased, cooler and dimmer when they are annoyed or worried. The colours are in the `.scene[data-scene=…]` and
   `.scene[data-mood=…]` rules in `index.html`.
 - **Photo:** the original portrait in a round frame.

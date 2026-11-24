@@ -6,6 +6,6 @@
     "@netlify/blobs": ">=8.1.0"
   },
   "scripts": {
-    "test": "node --test tests/access.test.mjs"
+    "test": "node --test tests/access.test.mjs tests/samples.test.mjs"
   }
 }

@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
-<script src="talking-mouth.js?v=1"></script><script src="avatar-anim.js?v=1"></script>
+<script src="demos.js?v=2"></script><script src="talking-mouth.js?v=1"></script><script src="avatar-anim.js?v=1"></script>
 <style>
 @font-face{font-family:"Cormorant";src:url(fonts/cormorant-garamond-latin-500-normal.woff2) format("woff2");font-weight:500;font-display:swap}
 @font-face{font-family:"Cormorant";src:url(fonts/cormorant-garamond-latin-600-normal.woff2) format("woff2");font-weight:600;font-display:swap}
@@ -96,7 +96,22 @@ section.band .head p{margin-top:16px;color:var(--muted);font-size:1.1rem}
 #cast{background:var(--ink);color:#fff}
 #cast .head p{color:#b9bfd8}
 #cast .eyebrow{color:var(--gold)}
-.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.tab{border:1.5px solid rgba(255,255,255,.25);background:transparent;color:#d6daea;border-radius:999px;padding:10px 20px;font-weight:700}
+.tab[aria-selected=true]{background:var(--gold);border-color:var(--gold);color:var(--night)}
+.catblurb{color:#b9bfd8;margin-bottom:24px;max-width:70ch}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.card .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+.card .btns .btn{margin-top:0}
+.card .btn.ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.4)}
+.card .soon{font-size:.85rem;color:#9ea6c4;align-self:center}
+.phrase{background:rgba(255,255,255,.95);color:var(--ink);border-radius:18px;padding:12px 22px;display:flex;flex-direction:column;align-items:center;gap:2px;box-shadow:0 12px 30px rgba(0,0,0,.25);max-width:min(560px,90%)}
+.phrase b{font-size:1.9rem;line-height:1.2}
+.phrase span{color:var(--gold-2);font-weight:700}
+.phrase em{color:var(--muted);font-style:normal;font-size:.95rem}
+.room[data-who=you] .caption{color:#ffd9c9;font-style:italic}
+.caption .roman{display:block;font-size:.9rem;opacity:.85;font-style:normal}
+.care988{font-size:.85rem;color:#f3d7c8;background:rgba(224,115,90,.15);border-radius:10px;padding:8px 10px}
 .card{background:linear-gradient(180deg,#1f2a55,#18214a);border:1px solid rgba(255,255,255,.08);border-radius:24px;overflow:hidden;display:flex;flex-direction:column;transition:transform .2s,border-color .2s}
 .card:hover{transform:translateY(-4px);border-color:rgba(217,178,106,.5)}
 .card .pic{aspect-ratio:1;position:relative;overflow:hidden}
@@ -114,7 +129,7 @@ section.band .head p{margin-top:16px;color:var(--muted);font-size:1.1rem}
 .demostate{margin:0 0 22px;padding:12px 16px;border-radius:14px;background:rgba(217,178,106,.14);color:#f3e6c8;font-weight:700}
 .castnote a{color:var(--gold)}
 .castnote{margin-top:26px;font-size:.92rem;color:#9ea6c4;display:flex;gap:18px;flex-wrap:wrap}
-@media (max-width:1050px){.cards{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:1000px){.cards{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:560px){.cards{grid-template-columns:1fr}}
 
 /* ---------- how ---------- */
@@ -220,9 +235,8 @@ dialog .row{display:flex;gap:10px;margin-top:12px}
 .scene::after{content:"";position:absolute;inset:0;background:var(--img,none) center/cover no-repeat;filter:blur(3px) brightness(.85)}
 @keyframes drift{to{transform:translate(-2%,1.5%) scale(1.04)}}
 .scene[data-scene=interview]{--a:#1b2b4d;--b:#5f86b8;--c:#f2e3c2}      /* a bright office at golden hour */
-.scene[data-scene=customer]{--a:#123b3d;--b:#3f8f8a;--c:#cdeee4}       /* a calm support desk */
-.scene[data-scene=smalltalk]{--a:#7a3b22;--b:#e8a25f;--c:#fff1cc}      /* a sunny Saturday market */
-.scene[data-scene=storyteller]{--a:#1e1230;--b:#5a3a6e;--c:#ffb36b}    /* firelight */
+.scene[data-scene=language]{--a:#7a3b22;--b:#e8a25f;--c:#fff1cc}       /* a sunny café */
+.scene[data-scene=talk]{--a:#1e1230;--b:#5a3a6e;--c:#ffb36b}           /* a cosy, lamp-lit corner */
 .scene[data-mood=relieved]{--glow:.85;--bri:1.08;--sat:1.1}
 .scene[data-mood=concerned]{--glow:.35;--bri:.9;--sat:.85;--tilt:-12deg}
 .scene[data-mood=guarded]{--glow:.3;--bri:.86;--sat:.8;--tilt:-8deg}
@@ -291,21 +305,21 @@ dialog .row{display:flex;gap:10px;margin-top:12px}
     <div class="uses">
       <article class="use">
         <div class="ico" style="background:#e8edf9">💼</div>
-        <h3>Workplace practice</h3>
-        <p>Rehearse the moments that are hard to rehearse with a colleague.</p>
-        <ul><li>Job interviews</li><li>Upset customers</li><li>Giving and receiving feedback</li><li>Negotiating and saying no</li></ul>
+        <h3>Job interviews</h3>
+        <p>Rehearse with an interviewer who listens for real examples, then get specific coaching.</p>
+        <ul><li>Marketing</li><li>Technology</li><li>Healthcare</li></ul>
       </article>
       <article class="use">
         <div class="ico" style="background:#fbe7df">🗣️</div>
-        <h3>Language &amp; social</h3>
-        <p>Everyday small talk with someone kind, who slows down when you need it.</p>
-        <ul><li>Ordering and shopping</li><li>Meeting neighbours</li><li>Making plans</li><li>Confidence for new arrivals</li></ul>
+        <h3>Language learning</h3>
+        <p>Your first conversation, said out loud: hello, nice to meet you, small talk, thank you and goodbye, with culture tips.</p>
+        <ul><li>Korean</li><li>Japanese</li><li>Mandarin Chinese</li></ul>
       </article>
       <article class="use">
-        <div class="ico" style="background:#efe6f3">📖</div>
-        <h3>Stories &amp; companions</h3>
-        <p>Characters to simply enjoy: tell stories together, play, wonder, laugh.</p>
-        <ul><li>Interactive storytelling</li><li>Make-it-up-together tales</li><li>Museum and exhibit guides</li><li>Friendly hosts for your brand</li></ul>
+        <div class="ico" style="background:#efe6f3">💬</div>
+        <h3>Talk it through</h3>
+        <p>A friendly ear with the attitude you need today. A companion, not therapy or crisis support.</p>
+        <ul><li>Supportive: listens and encourages</li><li>Mentor: questions, then a plan</li><li>Joker: a laugh, then real help</li></ul>
       </article>
     </div>
   </div>
@@ -316,8 +330,10 @@ dialog .row{display:flex;gap:10px;margin-top:12px}
     <div class="head">
       <div class="eyebrow">Meet the cast</div>
       <h2>Pick someone and say hello.</h2>
-      <p>These are live demos. Allow your microphone, speak naturally, and end whenever you like. Practice scenes finish with short coaching notes.</p>
+      <p>Watch a short sample for free, or talk live with a guest code. Live practice scenes finish with short coaching notes.</p>
     </div>
+    <div class="tabs" id="tabs" role="tablist" aria-label="Demo categories"></div>
+    <p class="catblurb" id="catBlurb"></p>
     <div class="cards" id="cards"></div>
     <p class="demostate" id="demoState" hidden></p>
     <div class="castnote"><span id="accessNote">🔑 Live demos need a guest code: <a href="#studio">ask us for one</a></span><span>🎙️ Microphone needed</span><span id="limitNote">⏱️ Up to 5 minutes per conversation</span><span>🔒 Conversations are not recorded or stored</span><span>💻 Works best in Chrome, Edge or Safari</span><span class="bgswitch" role="group" aria-label="Backdrop" style="margin-left:auto"><button type="button" data-bg="scene" aria-pressed="true">Adaptive scene</button><button type="button" data-bg="photo" aria-pressed="false">Original photo</button></span></div>
@@ -394,13 +410,21 @@ dialog .row{display:flex;gap:10px;margin-top:12px}
       <h2 id="sceneTitle"></h2>
       <p id="bBrief"></p>
       <p class="opener" id="bOpener"></p>
+      <p class="care988" id="bCare" hidden>A friendly companion, not therapy or crisis support. If you are in crisis in the US, call or text 988, or contact local emergency services.</p>
     </aside>
     <div class="room" id="room" data-who="idle">
       <div class="scene" id="roomScene"></div>
       <div class="orb"><img id="still" alt=""><canvas id="cv" hidden></canvas></div>
       <div class="whonow" id="whoNow">Connecting…</div>
+      <div class="phrase" id="phrase" hidden><b id="phNative"></b><span id="phRoman"></span><em id="phMeaning"></em></div>
       <div class="caption" id="caption" aria-live="polite"></div>
-      <div class="controls">
+      <div class="controls" id="sampleControls" hidden>
+        <button class="btn" id="pauseBtn" type="button">Pause</button>
+        <button class="btn" id="replayBtn" type="button">Replay</button>
+        <button class="btn gold" id="liveFromSample" type="button">Talk live</button>
+        <button class="btn" id="backBtn" type="button">Back</button>
+      </div>
+      <div class="controls" id="liveControls">
         <button class="btn" id="muteBtn" type="button">Mute my microphone</button>
         <button class="btn gold" id="endBtn" type="button">End conversation</button>
       </div>
@@ -434,26 +458,12 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "
 const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
 $("yr").textContent = new Date().getFullYear();
 
-/* ---------------- the cast (public side; instructions live on the server) ---------------- */
-const X = (id, list) => list;   // the expression pictures each portrait has (see art())
-const CAST = {
-  interview: { name: "Grace Park", role: "Hiring manager", category: "Workplace", title: "The job interview", portrait: "F09",
-    brief: "You're interviewing for a Project Coordinator role at Northlight. Grace will ask four or five questions. Give specific examples, and have a question ready for her at the end.",
-    opener: "Say hello when you're ready.", feedback: true, talkMix: 1,
-    expressions: X("F09", ["concerned", "guarded", "distressed", "relieved", "calm", "talk", "talk_small"]) },
-  customer: { name: "Jess Carter", role: "Upset customer", category: "Workplace", title: "The late replacement", portrait: "F13",
-    brief: "You work in support at Brightline Electronics. Jess's replacement laptop is two weeks late and she has a deadline on Friday. Calm things down and agree a next step.",
-    opener: "Answer the call: “Brightline support, how can I help?”", feedback: true, mouthBox: [230, 214, 298, 247],
-    expressions: X("F13", ["concerned", "guarded", "distressed", "relieved", "calm", "talk", "talk_small", "talk_relieved", "talk_small_relieved"]) },
-  smalltalk: { name: "Ama Mensah", role: "Market baker", category: "Language & social", title: "Saturday market", portrait: "F05",
-    brief: "You stop at Ama's bakery stall at the neighbourhood market. Chat, ask about her bakes, maybe order something. Great for practising everyday English.",
-    opener: "Greet Ama when you're ready.", feedback: true,
-    expressions: X("F05", ["concerned", "guarded", "distressed", "relieved", "calm", "talk"]) },
-  storyteller: { name: "Rosa", role: "Storyteller", category: "Stories & companions", title: "Stories with Rosa", portrait: "F12",
-    brief: "Pull up a chair. Ask Rosa for a funny, brave or gently spooky story, or make one up together. No score, just enjoyment.",
-    opener: "Say hello to Rosa.", feedback: false, expressions: [] },
-};
+/* ---------------- the cast: public/demos.js (the instructions live on the server) ---------------- */
+const { CATEGORIES, DEMOS } = window.LINFINI_DEMOS;
+const CAT = Object.fromEntries(CATEGORIES.map((c) => [c.id, c]));
+const CAST = DEMOS;
 for (const [id, c] of Object.entries(CAST)) { c.id = id; c.img = `cast/${c.portrait}/neutral.jpg`; c.thumb = `cast/${c.portrait}/thumb.jpg`; }
+const first = (c) => c.name.split(" ")[0];
 
 /* Backdrop option. "scene": the background is removed (cast/<id>/cut/*.webp, transparent) and the character stands in an
    adaptive scene. "photo": the original portrait with its own background. Remembered on this device. */
@@ -462,8 +472,8 @@ function art(c, cut = CUT) {
   const dir = `cast/${c.portrait}/` + (cut ? "cut/" : ""), ext = cut ? "webp" : "jpg";
   return { img: dir + "neutral." + ext, thumb: dir + "thumb." + ext, expressions: Object.fromEntries(c.expressions.map((e) => [e, dir + e + "." + ext])) };
 }
-const SCENE_IMG = {};          // optional pictures: drop public/scenes/<scene>.webp in and it is used behind the character
-for (const id of Object.keys(CAST)) { const im = new Image(); im.onload = () => { SCENE_IMG[id] = im.src; paintScenes(); }; im.src = `scenes/${id}.webp`; }
+const SCENE_IMG = {};          // optional pictures: drop public/scenes/<category>.webp (interview, language, talk) in and it is used behind the characters
+for (const id of Object.keys(CAT)) { const im = new Image(); im.onload = () => { SCENE_IMG[id] = im.src; paintScenes(); }; im.src = `scenes/${id}.webp`; }
 function setScene(el, id, mood) { if (!el) return; el.dataset.scene = id; if (mood !== undefined) el.dataset.mood = mood; el.style.setProperty("--img", SCENE_IMG[id] ? `url("${SCENE_IMG[id]}")` : "none"); }
 function paintScenes() { for (const el of document.querySelectorAll(".scene[data-scene]")) setScene(el, el.dataset.scene); }
 function setBg(mode) {
@@ -488,21 +498,36 @@ fetch("/api/session", { method: "POST", headers: { "content-type": "application/
     $("accessNote").hidden = !j.needsCode;
   }).catch(() => {});
 
-$("cards").innerHTML = Object.entries(CAST).map(([id, c]) => `
+let SAMPLES = {}, tabNow = (() => { try { return sessionStorage.getItem("linfini.tab") || "interview"; } catch { return "interview"; } })();
+const hasSample = (id) => !!SAMPLES[id]?.locked;
+function renderTabs() {
+  $("tabs").innerHTML = CATEGORIES.map((c) => `<button class="tab" role="tab" type="button" data-tab="${c.id}" aria-selected="${c.id === tabNow}">${esc(c.label)}</button>`).join("");
+  $("catBlurb").textContent = CAT[tabNow].blurb;
+}
+function renderCards() {
+  renderTabs();
+  $("cards").innerHTML = Object.entries(CAST).filter(([, c]) => c.category === tabNow).map(([id, c]) => `
   <article class="card">
-    <div class="pic"><div class="scene" data-scene="${id}"></div><img src="${art(c).thumb}" data-thumb="${id}" alt="${esc(c.name)}" loading="lazy"><div class="who"><b>${esc(c.name)}</b><span>${esc(c.role)}</span></div></div>
-    <div class="body"><span class="chip">${esc(c.category)}</span><h3>${esc(c.title)}</h3><p>${esc(c.brief)}</p>
-    <button class="btn gold" type="button" data-talk="${id}">Talk with ${esc(c.name.split(" ")[0])}</button></div>
+    <div class="pic"><div class="scene" data-scene="${c.category}"></div><img src="${art(c).thumb}" data-thumb="${id}" alt="${esc(c.name)}" loading="lazy"><div class="who"><b>${esc(c.name)}</b><span>${esc(c.role)}</span></div></div>
+    <div class="body"><span class="chip">${esc(c.chip)}</span><h3>${esc(c.title)}</h3><p>${esc(c.brief)}</p>
+    <div class="btns">${hasSample(id) ? `<button class="btn gold" type="button" data-watch="${id}">▶ Watch sample</button>` : `<span class="soon">Sample coming soon</span>`}
+    <button class="btn ${hasSample(id) ? "ghost" : "gold"}" type="button" data-talk="${id}">Talk live with ${esc(first(c))}</button></div></div>
   </article>`).join("");
-$("cards").addEventListener("click", (e) => { const b = e.target.closest("[data-talk]"); if (b) begin(b.dataset.talk); });
+  paintScenes();
+}
+$("tabs").addEventListener("click", (e) => { const t = e.target.closest("[data-tab]"); if (!t) return; tabNow = t.dataset.tab; try { sessionStorage.setItem("linfini.tab", tabNow); } catch {} renderCards(); });
+$("cards").addEventListener("click", (e) => { const w = e.target.closest("[data-watch]"), b = e.target.closest("[data-talk]"); if (w) watch(w.dataset.watch); else if (b) begin(b.dataset.talk); });
+renderCards();
+fetch("/api/samples", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "list" }) })
+  .then((r) => r.ok ? r.json() : null).then((j) => { if (j?.samples) { SAMPLES = j.samples; renderCards(); } }).catch(() => {});
 
 /* ---------------- hero: the cast take turns, alive on this device ---------------- */
 (() => {
-  const order = ["customer", "interview", "smalltalk", "storyteller"], host = $("heroFace"); let i = 0, cur = null;
+  const order = ["talk-joker", "interview-tech", "lang-korean", "talk-mentor", "interview-marketing", "lang-japanese", "talk-supportive", "interview-health", "lang-chinese"], host = $("heroFace"); let i = 0, cur = null;
   function show() {
     const id = order[i % order.length], c = CAST[id], a = art(c); i++;
-    setScene($("heroScene"), id, "neutral");
-    $("heroTag").innerHTML = `${esc(c.name)} <span>· ${esc(c.role)}</span>`;
+    setScene($("heroScene"), c.category, "neutral");
+    $("heroTag").innerHTML = `${esc(c.name)} <span>· ${esc(c.chip)}</span>`;
     const cv = document.createElement("canvas"), still = new Image(); still.src = a.img; still.alt = "";
     still.style.opacity = 0; cv.style.opacity = 0; host.append(still, cv);
     const prev = cur; cur = { cv, still, anim: null };
@@ -520,6 +545,53 @@ $("cards").addEventListener("click", (e) => { const b = e.target.closest("[data-
 })();
 setBg(CUT ? "scene" : "photo");
 
+/* ---------------- sample playback: recorded lines, free to watch ---------------- */
+const sAudio = new Audio(); sAudio.preload = "auto";
+let sCtx = null, sAn = null, sBuf = null, play = null;
+function sampleAudioSetup() {               // must run inside a click, so the browser allows sound
+  if (!sCtx) try { sCtx = new (window.AudioContext || window.webkitAudioContext)(); const src = sCtx.createMediaElementSource(sAudio); sAn = sCtx.createAnalyser(); sAn.fftSize = 512; sBuf = new Uint8Array(512); src.connect(sAn); sAn.connect(sCtx.destination); } catch { sAn = null; }
+  sCtx?.resume?.();
+}
+function watch(id) {
+  who = id; sampleAudioSetup(); openStage("sample"); startAvatar();
+  play = { id, step: 0, paused: false, timer: null }; $("pauseBtn").textContent = "Pause";
+  play.timer = setTimeout(runStep, 1500);
+}
+function stopSample() { if (play) clearTimeout(play.timer); play = null; sAudio.pause(); sAudio.onended = null; }
+function runStep() {
+  if (!play) return; clearTimeout(play.timer);
+  const c = CAST[play.id], t = c.script[play.step];
+  if (!t) {                                  // the end of the sample
+    $("room").dataset.who = "idle"; $("whoNow").textContent = "That's the sample"; $("phrase").hidden = true;
+    $("caption").innerHTML = `Now it's your turn. <b>Talk live with ${esc(first(c))}</b>, or replay the sample.`; $("pauseBtn").hidden = true; return;
+  }
+  $("pauseBtn").hidden = false;
+  const next = (ms) => { play.timer = setTimeout(() => { if (play && !play.paused) { play.step++; runStep(); } }, ms); };
+  if (t.ai) {
+    anim?.update({ emotion: t.emotion || "neutral", intensity: .6 }); $("roomScene").dataset.mood = t.emotion || "neutral";
+    $("room").dataset.who = "ai"; $("whoNow").textContent = `${first(c)} is speaking`; $("caption").textContent = t.ai;
+    $("phrase").hidden = !t.cap; if (t.cap) { $("phNative").textContent = t.cap.native; $("phRoman").textContent = t.cap.roman; $("phMeaning").textContent = t.cap.meaning; }
+    sAudio.onended = () => { $("room").dataset.who = "idle"; next(600); };
+    sAudio.src = `/api/samples?demo=${encodeURIComponent(play.id)}&i=${play.step}&v=${SAMPLES[play.id]?.v || 0}`;
+    const lead = (SAMPLES[play.id]?.lead?.[play.step] || 0) / 1000;
+    sAudio.onloadedmetadata = () => { if (lead > 0.15) try { sAudio.currentTime = Math.max(0, lead - 0.12); } catch { /* not seekable: play from the start */ } };
+    sAudio.play().catch(() => { $("whoNow").textContent = "Tap Play to hear the sample"; play.paused = true; $("pauseBtn").textContent = "Play"; });
+  } else {
+    $("room").dataset.who = "you"; $("whoNow").textContent = c.language ? "Your turn: say it out loud!" : "You might say";
+    $("caption").innerHTML = `“${esc(t.you)}”` + (t.roman ? `<span class="roman">${esc(t.roman)}</span>` : "");
+    next(c.language ? 3400 : Math.min(4200, 1600 + t.you.length * 35));
+  }
+}
+$("pauseBtn").addEventListener("click", () => {
+  if (!play) return;
+  if (!play.paused) { play.paused = true; clearTimeout(play.timer); sAudio.pause(); $("pauseBtn").textContent = "Play"; return; }
+  play.paused = false; $("pauseBtn").textContent = "Pause"; sCtx?.resume?.();
+  if (CAST[play.id].script[play.step]?.ai && sAudio.src && !sAudio.ended && sAudio.currentTime > 0) sAudio.play().catch(() => {}); else runStep();
+});
+$("replayBtn").addEventListener("click", () => { if (!who) return; sampleAudioSetup(); stopSample(); play = { id: who, step: 0, paused: false, timer: null }; $("pauseBtn").textContent = "Pause"; runStep(); });
+$("liveFromSample").addEventListener("click", () => { stopSample(); cleanup(); begin(who); });
+$("backBtn").addEventListener("click", closeStage);
+
 /* ---------------- contact form (Netlify Forms) ---------------- */
 $("contactForm").addEventListener("submit", async (e) => {
   e.preventDefault(); const f = e.target;
@@ -536,29 +608,32 @@ let ticket = null, allowed = 0, frags = [], aiText = "", emoSeen = 0, lastAi = 0
 async function begin(id) {
   who = id;
   if (CONFIG.needsCode && !code) { $("codeErr").textContent = ""; $("codeIn").value = ""; $("codeDlg").showModal(); return; }
-  openStage(); start();
+  openStage("live"); start();
 }
 $("codeForm").addEventListener("submit", async (e) => {
   if (e.submitter?.value !== "ok") return; e.preventDefault();
   const v = $("codeIn").value.trim(); if (!v) return;
   const r = await fetch("/api/session", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ code: v, check: true }) }).catch(() => null);
   if (!r || !r.ok) { $("codeErr").textContent = (await r?.json().catch(() => null))?.error || "That code didn't work."; return; }
-  keepCode(v); $("codeDlg").close(); openStage(); start();
+  keepCode(v); $("codeDlg").close(); openStage("live"); start();
 });
 $("askCode").addEventListener("click", () => $("codeDlg").close());
 
-function openStage() {
-  const c = CAST[who];
-  $("bThumb").src = c.thumb; $("bName").textContent = c.name; $("bRole").textContent = c.role; $("bCat").textContent = c.category;
+let mode = "live";
+function openStage(m = "live") {
+  const c = CAST[who]; mode = m; stopSample();
+  $("bThumb").src = c.thumb; $("bName").textContent = c.name; $("bRole").textContent = c.role; $("bCat").textContent = `${CAT[c.category].label} · ${c.chip}`;
+  $("bCare").hidden = c.category !== "talk"; $("phrase").hidden = true;
+  $("liveControls").hidden = m !== "live"; $("sampleControls").hidden = m !== "sample"; $("liveFromSample").textContent = `Talk live with ${first(c)}`;
   $("sceneTitle").textContent = c.title; $("bBrief").textContent = c.brief; $("bOpener").textContent = c.opener;
-  $("still").src = art(c).img; $("still").alt = c.name; setScene($("roomScene"), who, "neutral"); $("still").hidden = false; $("cv").hidden = true;
+  $("still").src = art(c).img; $("still").alt = c.name; setScene($("roomScene"), c.category, "neutral"); $("still").hidden = false; $("cv").hidden = true;
   $("liveView").hidden = false; $("coachView").hidden = true; $("clock").textContent = ""; $("status").textContent = "";
-  $("whoNow").textContent = "Connecting…"; $("caption").textContent = ""; $("room").dataset.who = "idle";
+  $("whoNow").textContent = m === "sample" ? "Sample conversation" : "Connecting…"; $("caption").textContent = ""; $("room").dataset.who = "idle";
   document.body.style.overflow = "hidden"; $("stage").hidden = false;
   const cu = $("curtain"); cu.hidden = false; cu.classList.remove("open"); requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(() => cu.classList.add("open"), 250)));
   setTimeout(() => { cu.hidden = true; }, 1700);
 }
-function closeStage() { cleanup(); $("stage").hidden = true; document.body.style.overflow = ""; document.getElementById("cast").scrollIntoView({ behavior: calm ? "auto" : "smooth" }); }
+function closeStage() { stopSample(); cleanup(); $("stage").hidden = true; document.body.style.overflow = ""; document.getElementById("cast").scrollIntoView({ behavior: calm ? "auto" : "smooth" }); }
 
 async function start() {
   frags = []; aiText = ""; emoSeen = 0; lastAi = lastYou = 0; t0 = 0; muted = false; ending = false; $("muteBtn").textContent = "Mute my microphone"; $("endBtn").disabled = false;
@@ -638,18 +713,18 @@ function readEmotion() {
 }
 function lastWords(r) { let out = ""; for (let i = frags.length - 1; i >= 0 && out.length < 220; i--) { if (frags[i].r !== r) { if (out) break; continue; } out = frags[i].t + out; } return out.trim(); }
 setInterval(() => {
-  if ($("stage").hidden || !$("coachView").hidden || !t0) return;
+  if ($("stage").hidden || !$("coachView").hidden || mode !== "live" || !t0) return;
   const now = performance.now(), ai = now - lastAi < 1600, you = now - lastYou < 1600, name = CAST[who].name.split(" ")[0];
   const w = ai ? "ai" : you ? "you" : "idle"; $("room").dataset.who = w;
   $("whoNow").textContent = ai ? `${name} is speaking` : you ? "You're speaking" : muted ? "Your microphone is muted" : "Listening…";
   $("caption").textContent = ai ? lastWords("A") : you ? lastWords("S") : $("caption").textContent;
 }, 300);
 setInterval(() => {
-  if ($("stage").hidden || !t0) return;
-  const speaking = $("room").dataset.who === "ai"; let lvl = 0;
-  if (speaking && analyser) { analyser.getByteTimeDomainData(buf); let s = 0; for (const v of buf) s += (v - 128) ** 2; lvl = Math.min(1, Math.sqrt(s / buf.length) / 28); }
+  if ($("stage").hidden || (mode === "live" && !t0)) return;
+  const speaking = $("room").dataset.who === "ai", an = mode === "sample" ? sAn : analyser, ab = mode === "sample" ? sBuf : buf; let lvl = 0;
+  if (speaking && an) { an.getByteTimeDomainData(ab); let s = 0; for (const v of ab) s += (v - 128) ** 2; lvl = Math.min(1, Math.sqrt(s / ab.length) / 28); }
   $("room").style.setProperty("--lvl", lvl.toFixed(2));
-  if (anim) { const m = { mouth: speaking ? (analyser ? lvl : 1) : 0 }; if (anim._spk !== speaking) m.speaking = anim._spk = speaking; anim.update(m); }
+  if (anim) { const m = { mouth: speaking ? (an ? lvl : 1) : 0 }; if (anim._spk !== speaking) m.speaking = anim._spk = speaking; anim.update(m); }
 }, 110);
 
 $("muteBtn").addEventListener("click", () => { muted = !muted; mic?.getAudioTracks().forEach((t) => (t.enabled = !muted)); $("muteBtn").textContent = muted ? "Unmute my microphone" : "Mute my microphone"; });
@@ -680,8 +755,8 @@ async function finish() {
   const c = CAST[who], tx = transcript();
   $("liveView").hidden = true; $("coachView").hidden = false; $("clock").textContent = ""; $("cTx").textContent = tx.shown || "(Nothing was said.)";
   if (!c.feedback) {
-    $("cEyebrow").textContent = "Until next time"; $("cTitle").textContent = `Thanks for visiting ${c.name}.`;
-    $("cBody").innerHTML = `<p>Stories are better shared. Come back any time for another one.</p>`; return;
+    $("cEyebrow").textContent = "Until next time"; $("cTitle").textContent = `Thanks for talking with ${first(c)}.`;
+    $("cBody").innerHTML = `<p>Take care of yourself. If things ever feel like too much, reach out to someone you trust, or in the US call or text <b>988</b> any time.</p>`; return;
   }
   $("cEyebrow").textContent = "Coaching notes"; $("cTitle").textContent = "Writing your notes…";
   $("cBody").innerHTML = `<div class="wait"><div class="spin"></div><div><b>Reading back your conversation</b><p style="color:var(--muted)">This usually takes under a minute.</p></div></div>`;
