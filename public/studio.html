@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Studio · L'Infini Studio</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23121a33'/%3E%3Cpath d='M32 32c-6-8-11-11-16-11a11 11 0 0 0 0 22c5 0 10-3 16-11zm0 0c6 8 11 11 16 11a11 11 0 0 0 0-22c-5 0-10 3-16 11z' fill='none' stroke='%23d9b26a' stroke-width='5'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:"Cormorant";src:url(fonts/cormorant-garamond-latin-600-normal.woff2) format("woff2");font-weight:600;font-display:swap}
+@font-face{font-family:"Cormorant";src:url(fonts/cormorant-garamond-latin-600-italic.woff2) format("woff2");font-weight:600;font-style:italic;font-display:swap}
+:root{--ink:#121a33;--night:#0b1024;--cream:#f7f2e8;--paper:#fffdf8;--gold:#d9b26a;--gold-2:#b8893a;--text:#1d2233;--muted:#5d6278;--line:#e4dccb;--ok:#2c7a57;--bad:#b0405a;--amber:#9a6412;
+  --serif:"Cormorant",Georgia,serif;--sans:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--sans);background:var(--cream);color:var(--text);font-size:16px;line-height:1.5}
+h1,h2{font-family:var(--serif);font-weight:600;margin:0;line-height:1.1}
+h2{font-size:1.9rem}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+[hidden]{display:none!important}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+header{background:var(--ink);color:#fff}
+header .wrap{display:flex;justify-content:space-between;align-items:center;height:62px}
+.logo{font-family:var(--serif);font-size:1.45rem;text-decoration:none;color:#fff}
+.logo i{color:var(--gold)}
+.wrap{max-width:1160px;margin:0 auto;padding:0 20px}
+main.wrap{padding-top:26px;padding-bottom:60px;display:flex;flex-direction:column;gap:22px}
+.btn{border:1.5px solid var(--line);background:var(--paper);border-radius:999px;padding:9px 16px;font-weight:700;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--gold-2)}
+.btn.ink{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:var(--night)}
+.btn.bad{color:var(--bad);border-color:#e3c3cb}
+.btn.sm{padding:5px 11px;font-size:.85rem}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+header .btn{background:transparent;color:#fff;border-color:rgba(255,255,255,.35)}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:22px 24px;display:flex;flex-direction:column;gap:14px}
+.muted{color:var(--muted)}
+.small{font-size:.88rem}
+label{display:flex;flex-direction:column;gap:5px;font-weight:700;font-size:.9rem}
+input,select,textarea{font-weight:400;padding:9px 12px;border:1.5px solid var(--line);border-radius:12px;background:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px 16px;align-items:end}
+.grid .wide{grid-column:span 2}
+.err{color:var(--bad);font-weight:700;min-height:1.4em}
+.ok{color:var(--ok);font-weight:700}
+#login{min-height:calc(100vh - 62px);display:grid;place-items:center;padding:20px}
+#login form{max-width:400px;width:100%}
+/* status strip */
+.strip{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.stat{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:16px 18px}
+.stat b{display:block;font-family:var(--serif);font-size:2.1rem;line-height:1}
+.stat span{color:var(--muted);font-size:.88rem}
+.bar{height:8px;border-radius:99px;background:#efe8d8;overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:var(--gold-2)}
+.bar i.hot{background:var(--bad)}
+.kill{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;border-radius:18px;padding:14px 20px;font-weight:700}
+.kill.on{background:#e3f1e9;color:var(--ok)}
+.kill.off{background:#f8e3e7;color:var(--bad)}
+@media (max-width:820px){.strip{grid-template-columns:1fr 1fr}}
+/* codes */
+table{border-collapse:collapse;width:100%;font-size:.93rem}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.code{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700;letter-spacing:.04em;cursor:pointer}
+.pill{display:inline-block;font-size:.75rem;font-weight:700;padding:2px 9px;border-radius:99px}
+.pill.ok{background:#e3f1e9;color:var(--ok)} .pill.off,.pill.expired{background:#eee;color:#666} .pill.used{background:#f8e3e7;color:var(--bad)}
+.acts{display:flex;gap:6px;flex-wrap:wrap}
+.tablewrap{overflow-x:auto}
+.newcode{border:2px solid var(--gold);background:#fbf4e4;border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.newcode .big{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1.6rem;font-weight:700;letter-spacing:.06em}
+.newcode textarea{min-height:110px;font-size:.92rem}
+.days{display:flex;gap:6px;align-items:flex-end;height:120px;padding-top:10px}
+.days div{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end;font-size:.7rem;color:var(--muted)}
+.days i{display:block;width:100%;background:var(--gold);border-radius:6px 6px 0 0;min-height:2px}
+.days i.over{background:var(--bad)}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:99px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:9}
+.cols{display:grid;grid-template-columns:1.1fr .9fr;gap:22px;align-items:start}
+@media (max-width:900px){.cols{grid-template-columns:1fr}.grid .wide{grid-column:auto}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><a class="logo" href="/">L'Infini <i>Studio</i></a><span><button class="btn sm" id="refresh" hidden>Refresh</button> <button class="btn sm" id="logout" hidden>Sign out</button></span></div></header>
+
+<section id="login">
+  <form class="panel" id="loginForm">
+    <h2>Studio</h2>
+    <p class="muted">Manage live demo access: guest codes, minutes and limits.</p>
+    <label>Studio password <input type="password" id="pw" autocomplete="current-password" required></label>
+    <p class="err" id="loginErr"></p>
+    <button class="btn ink" type="submit">Sign in</button>
+  </form>
+</section>
+
+<main class="wrap" id="app" hidden>
+  <div class="kill" id="kill"><span id="killText"></span><button class="btn" id="killBtn" type="button"></button></div>
+
+  <div class="strip">
+    <div class="stat"><b id="sToday">0</b><span id="sTodayOf">minutes used today</span><div class="bar"><i id="sTodayBar"></i></div></div>
+    <div class="stat"><b id="sSessions">0</b><span>conversations today</span></div>
+    <div class="stat"><b id="sWeek">0</b><span>minutes in the last 7 days</span></div>
+    <div class="stat"><b id="sCodes">0</b><span>guest codes working</span></div>
+  </div>
+
+  <div class="cols">
+    <section class="panel">
+      <h2>New guest code</h2>
+      <p class="muted small">Give one code per person or group, so you can see who used what and switch off just theirs.</p>
+      <form class="grid" id="newForm">
+        <label class="wide">Who it's for <input id="nLabel" placeholder="e.g. Dr. Smith, ACOG panel" maxlength="80" required></label>
+        <label>Minutes <input id="nMin" type="number" min="1" max="6000" value="20" required></label>
+        <label>Valid for (days) <input id="nDays" type="number" min="0" max="3650" value="30" required><span class="muted small" style="font-weight:400">0 = never expires</span></label>
+        <label>Code (optional) <input id="nCode" placeholder="made for you" maxlength="32" style="text-transform:uppercase"></label>
+        <label class="wide">Private note (optional) <input id="nNote" maxlength="300"></label>
+        <button class="btn gold" type="submit">Create code</button>
+      </form>
+      <p class="err" id="newErr"></p>
+      <div class="newcode" id="newOut" hidden>
+        <div class="muted small">New code for <b id="noLabel"></b></div>
+        <div class="big" id="noCode"></div>
+        <label>Invitation to send <textarea id="noMsg"></textarea></label>
+        <div class="acts"><button class="btn sm ink" type="button" id="copyCode">Copy code</button><button class="btn sm" type="button" id="copyMsg">Copy invitation</button></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Limits</h2>
+      <form class="grid" id="setForm">
+        <label>Daily ceiling (minutes, everyone) <input id="dMin" type="number" min="0" max="1440"></label>
+        <label>Longest conversation (minutes) <input id="mMin" type="number" min="1" max="30"></label>
+        <label>Conversations per network per hour <input id="ipH" type="number" min="1" max="100"></label>
+        <label style="flex-direction:row;align-items:center;gap:10px" class="wide"><input type="checkbox" id="open" style="width:20px;height:20px"> Open to everyone (no code needed; the limits above still apply)</label>
+        <button class="btn ink" type="submit">Save limits</button>
+      </form>
+      <p class="muted small" id="setNote"></p>
+      <h2 style="margin-top:6px;font-size:1.5rem">Last 14 days</h2>
+      <div class="days" id="days"></div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <div style="display:flex;justify-content:space-between;align-items:end;gap:14px;flex-wrap:wrap">
+      <h2>Guest codes</h2>
+      <label style="flex-direction:row;align-items:center;gap:8px;font-weight:400"><input type="checkbox" id="showOld"> Show switched off, expired and used up</label>
+    </div>
+    <div class="tablewrap"><table id="codes"><thead><tr><th>Code</th><th>Who</th><th>Minutes used</th><th>Conversations</th><th>Last used</th><th>Expires</th><th></th></tr></thead><tbody></tbody></table></div>
+    <p class="muted" id="noCodes" hidden>No guest codes yet. Create one above.</p>
+  </section>
+
+  <section class="panel">
+    <h2>Recent conversations</h2>
+    <div class="tablewrap"><table id="recent"><thead><tr><th>When</th><th>Who</th><th>Character</th><th>Minutes</th></tr></thead><tbody></tbody></table></div>
+  </section>
+</main>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const NAMES = { interview: "Grace · interview", customer: "Jess · customer", smalltalk: "Ama · market", storyteller: "Rosa · stories" };
+let pw = (() => { try { return sessionStorage.getItem("linfini.studio") || ""; } catch { return ""; } })(), DATA = null;
+
+async function api(action, extra = {}) {
+  const r = await fetch("/api/admin", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ password: pw, action, ...extra }) });
+  const j = await r.json().catch(() => ({}));
+  if (r.status === 401 && action !== "login") { signOut(); throw new Error("Please sign in again."); }
+  if (!r.ok) throw new Error(j.error || "Something went wrong.");
+  return j;
+}
+function toast(t) { const el = $("toast"); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => (el.hidden = true), 2200); }
+function signOut() { pw = ""; try { sessionStorage.removeItem("linfini.studio"); } catch {} $("app").hidden = true; $("login").hidden = false; $("logout").hidden = $("refresh").hidden = true; }
+
+$("loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault(); $("loginErr").textContent = ""; pw = $("pw").value;
+  try { await api("login"); try { sessionStorage.setItem("linfini.studio", pw); } catch {} $("pw").value = ""; enter(); }
+  catch (err) { $("loginErr").textContent = err.message; }
+});
+$("logout").addEventListener("click", signOut);
+$("refresh").addEventListener("click", () => load().then(() => toast("Up to date")));
+async function enter() { $("login").hidden = true; $("app").hidden = false; $("logout").hidden = $("refresh").hidden = false; await load(); }
+
+async function load() {
+  try { DATA = await api("overview"); } catch (err) { toast(err.message); return; }
+  render();
+}
+const mins = (sec) => Math.round((sec || 0) / 6) / 10;
+const when = (iso) => iso ? new Date(iso).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "—";
+function render() {
+  const { settings: s, codes, days, recent } = DATA;
+  // the switch
+  $("kill").className = "kill " + (s.paused ? "off" : "on");
+  $("killText").textContent = s.paused ? "Live demos are paused. Nobody can start a conversation." : `Live demos are on${s.open ? ", open to everyone" : ", for guest codes only"}.`;
+  $("killBtn").textContent = s.paused ? "Turn live demos back on" : "Pause all live demos";
+  $("killBtn").className = "btn " + (s.paused ? "ink" : "bad");
+  // numbers
+  const today = days[0], used = mins(today.seconds), pct = s.dailyMinutes ? Math.min(100, (today.seconds / 60 / s.dailyMinutes) * 100) : 100;
+  $("sToday").textContent = used; $("sTodayOf").textContent = `of ${s.dailyMinutes} minutes used today` + (today.refused ? ` · ${today.refused} turned away` : "");
+  $("sTodayBar").style.width = pct + "%"; $("sTodayBar").className = pct >= 90 ? "hot" : "";
+  $("sSessions").textContent = today.sessions || 0;
+  $("sWeek").textContent = mins(days.slice(0, 7).reduce((a, d) => a + (d.seconds || 0), 0));
+  $("sCodes").textContent = codes.filter((c) => c.state === "ok").length;
+  // limits
+  $("dMin").value = s.dailyMinutes; $("mMin").value = s.maxMinutes; $("ipH").value = s.perIpHour; $("open").checked = s.open;
+  $("setNote").textContent = `At most about ${Math.floor(s.dailyMinutes / Math.max(1, s.maxMinutes))} full-length conversations a day across all guests.`;
+  // chart
+  const top = Math.max(s.dailyMinutes, ...days.map((d) => d.seconds / 60), 1);
+  $("days").innerHTML = days.slice().reverse().map((d) => `<div title="${d.day}: ${mins(d.seconds)} min, ${d.sessions || 0} conversations"><i class="${d.seconds / 60 > s.dailyMinutes ? "over" : ""}" style="height:${(d.seconds / 60 / top) * 100}%"></i>${d.day.slice(8)}</div>`).join("");
+  // codes
+  const show = codes.filter((c) => $("showOld").checked || c.state === "ok");
+  $("noCodes").hidden = codes.length > 0;
+  $("codes").querySelector("tbody").innerHTML = show.map((c) => {
+    const p = Math.min(100, (c.usedSec / 60 / c.allowanceMin) * 100), pill = { ok: ["ok", "Working"], off: ["off", "Switched off"], expired: ["expired", "Expired"], "used up": ["used", "Used up"] }[c.state];
+    return `<tr data-code="${esc(c.code)}">
+      <td><span class="code" title="Click to copy">${esc(c.code)}</span><br><span class="pill ${pill[0]}">${pill[1]}</span></td>
+      <td>${esc(c.label) || "<span class=muted>—</span>"}${c.note ? `<div class="muted small">${esc(c.note)}</div>` : ""}</td>
+      <td style="min-width:150px">${mins(c.usedSec)} of ${c.allowanceMin}<div class="bar"><i class="${p >= 90 ? "hot" : ""}" style="width:${p}%"></i></div></td>
+      <td>${c.sessions || 0}</td><td>${when(c.lastUsed)}</td><td>${c.expires || "Never"}</td>
+      <td><div class="acts">
+        <button class="btn sm" data-a="add10">+10 min</button><button class="btn sm" data-a="extend">+30 days</button>
+        <button class="btn sm" data-a="toggle">${c.active ? "Switch off" : "Switch on"}</button>
+        <button class="btn sm" data-a="edit">Edit</button><button class="btn sm bad" data-a="delete">Delete</button></div></td></tr>`;
+  }).join("");
+  // recent
+  $("recent").querySelector("tbody").innerHTML = recent.length ? recent.map((r) => `<tr><td>${when(new Date(r.start).toISOString())}</td><td>${esc(r.label)} <span class="muted small">${r.code === "OPEN" ? "" : esc(r.code)}</span></td><td>${esc(NAMES[r.character] || r.character)}</td>
+    <td>${r.charged === null ? `<span class="muted" title="The page did not report back; the full ${mins(r.reserved)} minutes are counted">${mins(r.reserved)} (reserved)</span>` : mins(r.charged)}</td></tr>`).join("") : `<tr><td colspan="4" class="muted">No conversations yet.</td></tr>`;
+}
+$("showOld").addEventListener("change", () => DATA && render());
+
+$("killBtn").addEventListener("click", async () => {
+  const pause = !DATA.settings.paused;
+  if (pause && !confirm("Pause all live demos now? Conversations already running will finish.")) return;
+  try { await api("settings", { settings: { paused: pause } }); await load(); toast(pause ? "Live demos paused" : "Live demos are on"); } catch (err) { toast(err.message); }
+});
+$("setForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if ($("open").checked && !DATA.settings.open && !confirm("Open live demos to everyone, with no code? The daily ceiling and network limit still apply.")) return;
+  try { await api("settings", { settings: { dailyMinutes: +$("dMin").value, maxMinutes: +$("mMin").value, perIpHour: +$("ipH").value, open: $("open").checked } }); await load(); toast("Limits saved"); }
+  catch (err) { toast(err.message); }
+});
+
+$("newForm").addEventListener("submit", async (e) => {
+  e.preventDefault(); $("newErr").textContent = "";
+  try {
+    const { code: c } = await api("create", { label: $("nLabel").value, minutes: +$("nMin").value, days: +$("nDays").value, code: $("nCode").value, note: $("nNote").value });
+    $("noLabel").textContent = c.label; $("noCode").textContent = c.code;
+    $("noMsg").value = `Hi${c.label ? " " + c.label.split(/[,·]/)[0].trim() : ""},\n\nHere's your guest code for the live character demos at L'Infini Studio:\n\n${c.code}\n\nGo to ${location.origin}/#cast, pick a character and enter the code when asked. You have ${c.allowanceMin} minutes of conversation${c.expires ? `, until ${new Date(c.expires + "T12:00:00").toLocaleDateString([], { month: "long", day: "numeric", year: "numeric" })}` : ""}. You'll need a microphone; Chrome, Edge or Safari work best.\n\nEnjoy, and I'd love to hear what you think!`;
+    $("newOut").hidden = false; e.target.reset(); $("nMin").value = 20; $("nDays").value = 30; await load();
+  } catch (err) { $("newErr").textContent = err.message; }
+});
+const copy = (t, msg) => navigator.clipboard.writeText(t).then(() => toast(msg), () => toast("Couldn't copy; select it instead."));
+$("copyCode").addEventListener("click", () => copy($("noCode").textContent, "Code copied"));
+$("copyMsg").addEventListener("click", () => copy($("noMsg").value, "Invitation copied"));
+
+$("codes").addEventListener("click", async (e) => {
+  const tr = e.target.closest("tr[data-code]"); if (!tr) return; const code = tr.dataset.code, c = DATA.codes.find((x) => x.code === code);
+  if (e.target.classList.contains("code")) return copy(code, "Code copied");
+  const a = e.target.dataset.a; if (!a) return;
+  let update = null;
+  if (a === "add10") update = { addMinutes: 10 };
+  if (a === "extend") update = { extendDays: 30 };
+  if (a === "toggle") update = { active: !c.active };
+  if (a === "edit") {
+    const label = prompt("Who it's for", c.label); if (label === null) return;
+    const minutes = prompt("Total minutes allowed", c.allowanceMin); if (minutes === null) return;
+    const expires = prompt("Expires on (YYYY-MM-DD, or leave empty for never)", c.expires || ""); if (expires === null) return;
+    const reset = c.usedSec > 0 && confirm(`Also reset the ${mins(c.usedSec)} minutes used so far to zero?`);
+    update = { label, minutes: +minutes, expires: expires.trim(), ...(reset ? { resetUsage: true } : {}) };
+  }
+  try {
+    if (a === "delete") { if (!confirm(`Delete ${code}${c.label ? " (" + c.label + ")" : ""}? It stops working at once.`)) return; await api("delete", { code }); toast("Deleted"); }
+    else { await api("update", { code, update }); toast("Saved"); }
+    await load();
+  } catch (err) { toast(err.message); }
+});
+
+if (pw) api("login").then(enter, signOut);
+setInterval(() => { if (!$("app").hidden && document.visibilityState === "visible") load(); }, 60000);
+</script>
+</body>
+</html>

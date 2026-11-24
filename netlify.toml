@@ -1,9 +1,13 @@
-# L'Infini Studio website. Static site in /public, two edge functions in /netlify/edge-functions (live voice, coaching notes).
+# L'Infini Studio website. Static site in /public; three functions in /netlify/functions (live demo, coaching notes, Studio admin).
 [build]
   publish = "public"
 
 [build.environment]
   NODE_VERSION = "22"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
 
 [[headers]]
   for = "/*"
@@ -16,3 +20,14 @@
   for = "/cast/*"
   [headers.values]
     Cache-Control = "public, max-age=604800"
+
+[[headers]]
+  for = "/studio.html"
+  [headers.values]
+    X-Robots-Tag = "noindex"
+    Cache-Control = "no-store"
+
+[[redirects]]
+  from = "/studio"
+  to = "/studio.html"
+  status = 200

@@ -111,6 +111,8 @@ section.band .head p{margin-top:16px;color:var(--muted);font-size:1.1rem}
 .card h3{font-size:1.45rem}
 .card p{font-size:.95rem;color:#c7cce2;flex:1}
 .card .btn{align-self:flex-start;margin-top:4px;color:var(--night)}
+.demostate{margin:0 0 22px;padding:12px 16px;border-radius:14px;background:rgba(217,178,106,.14);color:#f3e6c8;font-weight:700}
+.castnote a{color:var(--gold)}
 .castnote{margin-top:26px;font-size:.92rem;color:#9ea6c4;display:flex;gap:18px;flex-wrap:wrap}
 @media (max-width:1050px){.cards{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:560px){.cards{grid-template-columns:1fr}}
@@ -317,7 +319,8 @@ dialog .row{display:flex;gap:10px;margin-top:12px}
       <p>These are live demos. Allow your microphone, speak naturally, and end whenever you like. Practice scenes finish with short coaching notes.</p>
     </div>
     <div class="cards" id="cards"></div>
-    <div class="castnote"><span>🎙️ Microphone needed</span><span id="limitNote">⏱️ Up to 5 minutes per conversation</span><span>🔒 Conversations are not recorded or stored</span><span>💻 Works best in Chrome, Edge or Safari</span><span class="bgswitch" role="group" aria-label="Backdrop" style="margin-left:auto"><button type="button" data-bg="scene" aria-pressed="true">Adaptive scene</button><button type="button" data-bg="photo" aria-pressed="false">Original photo</button></span></div>
+    <p class="demostate" id="demoState" hidden></p>
+    <div class="castnote"><span id="accessNote">🔑 Live demos need a guest code: <a href="#studio">ask us for one</a></span><span>🎙️ Microphone needed</span><span id="limitNote">⏱️ Up to 5 minutes per conversation</span><span>🔒 Conversations are not recorded or stored</span><span>💻 Works best in Chrome, Edge or Safari</span><span class="bgswitch" role="group" aria-label="Backdrop" style="margin-left:auto"><button type="button" data-bg="scene" aria-pressed="true">Adaptive scene</button><button type="button" data-bg="photo" aria-pressed="false">Original photo</button></span></div>
   </div>
 </section>
 
@@ -373,7 +376,7 @@ dialog .row{display:flex;gap:10px;margin-top:12px}
 <footer>
   <div class="wrap">
     <a class="logo" href="#top"><svg style="color:var(--gold)"><use href="#inf"/></svg><span>L'Infini <i>Studio</i></span></a>
-    <span>© <span id="yr">2026</span> L'Infini Innovations LLC · New York</span>
+    <span>© <span id="yr">2026</span> L'Infini Innovations LLC · New York · <a href="/studio" style="color:inherit;opacity:.6">Studio</a></span>
   </div>
 </footer>
 
@@ -416,9 +419,9 @@ dialog .row{display:flex;gap:10px;margin-top:12px}
 
 <dialog id="codeDlg">
   <form method="dialog" id="codeForm">
-    <h3>Demo code</h3>
-    <p style="color:var(--muted);margin-top:6px">Live demos are open to invited guests for now. Enter the code you were given, or <a href="#studio" id="askCode">ask us for one</a>.</p>
-    <input id="codeIn" autocomplete="off" aria-label="Demo code">
+    <h3>Guest code</h3>
+    <p style="color:var(--muted);margin-top:6px">Live demos are open to invited guests. Enter the guest code you were given, or <a href="#studio" id="askCode">ask us for one</a>.</p>
+    <input id="codeIn" autocomplete="off" aria-label="Guest code">
     <p class="err" id="codeErr"></p>
     <div class="row"><button class="btn ink" value="ok" id="codeGo">Start</button><button class="btn" value="cancel" formnovalidate>Cancel</button></div>
   </form>
@@ -475,9 +478,15 @@ function setBg(mode) {
 document.addEventListener("click", (e) => { const b = e.target.closest(".bgswitch button"); if (b) setBg(b.dataset.bg); });
 let heroRefresh = null;
 
-let CONFIG = { needsCode: false, live: true, maxMinutes: 5 }, code = "";
+let CONFIG = { needsCode: true, live: true, maxMinutes: 5 }, code = (() => { try { return sessionStorage.getItem("linfini.code") || ""; } catch { return ""; } })();
+const keepCode = (v) => { code = v; try { v ? sessionStorage.setItem("linfini.code", v) : sessionStorage.removeItem("linfini.code"); } catch { /* storage unavailable */ } };
 fetch("/api/session", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ list: true }) })
-  .then((r) => r.ok ? r.json() : null).then((j) => { if (j) { CONFIG = j; $("limitNote").textContent = `⏱️ Up to ${j.maxMinutes} minutes per conversation`; } }).catch(() => {});
+  .then((r) => r.ok ? r.json() : null).then((j) => {
+    if (!j) return; CONFIG = j; $("limitNote").textContent = `⏱️ Up to ${j.maxMinutes} minutes per conversation`;
+    const why = !j.live ? (j.paused ? "Live demos are paused at the moment." : "Live demos are not switched on yet.") : j.restingToday ? "Live demos are resting until tomorrow." : "";
+    if (why) { $("demoState").hidden = false; $("demoState").textContent = why + " Want a private demo? Say hello below."; }
+    $("accessNote").hidden = !j.needsCode;
+  }).catch(() => {});
 
 $("cards").innerHTML = Object.entries(CAST).map(([id, c]) => `
   <article class="card">
@@ -522,7 +531,7 @@ $("contactForm").addEventListener("submit", async (e) => {
 
 /* ---------------- live conversation ---------------- */
 let who = null, pc = null, dc = null, mic = null, anim = null, audioCtx = null, analyser = null, buf = null;
-let frags = [], aiText = "", emoSeen = 0, lastAi = 0, lastYou = 0, t0 = 0, muted = false, ending = false, clockT = null, deadline = 0;
+let ticket = null, allowed = 0, frags = [], aiText = "", emoSeen = 0, lastAi = 0, lastYou = 0, t0 = 0, muted = false, ending = false, clockT = null, deadline = 0;
 
 async function begin(id) {
   who = id;
@@ -534,7 +543,7 @@ $("codeForm").addEventListener("submit", async (e) => {
   const v = $("codeIn").value.trim(); if (!v) return;
   const r = await fetch("/api/session", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ code: v, check: true }) }).catch(() => null);
   if (!r || !r.ok) { $("codeErr").textContent = (await r?.json().catch(() => null))?.error || "That code didn't work."; return; }
-  code = v; $("codeDlg").close(); openStage(); start();
+  keepCode(v); $("codeDlg").close(); openStage(); start();
 });
 $("askCode").addEventListener("click", () => $("codeDlg").close());
 
@@ -569,11 +578,13 @@ async function start() {
     await iceDone(pc);
     const r = await fetch("/api/session", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ code, character: who, sdp: pc.localDescription.sdp }) });
     const j = await r.json().catch(() => ({}));
+    if (r.status === 401 && CONFIG.needsCode) keepCode("");   // a code that no longer works is forgotten, so the next try asks again
     if (!r.ok) throw new Error(j.error || "The conversation could not be started.");
+    ticket = j.ticket; allowed = j.seconds || CONFIG.maxMinutes * 60;
     await pc.setRemoteDescription({ type: "answer", sdp: j.transport.sdp });
     startAvatar();
     setTimeout(() => { if (!t0 && !ending) status("Still connecting… if this continues, end and try again."); }, 12000);
-  } catch (err) { cleanup(); $("whoNow").textContent = "Couldn't start"; status(err.message); $("endBtn").textContent = "Back"; $("endBtn").onclick = () => { $("endBtn").textContent = "End conversation"; $("endBtn").onclick = null; closeStage(); }; }
+  } catch (err) { cleanup(); reportEnd(); $("whoNow").textContent = "Couldn't start"; status(err.message); $("endBtn").textContent = "Back"; $("endBtn").onclick = () => { $("endBtn").textContent = "End conversation"; $("endBtn").onclick = null; closeStage(); }; }
 }
 function iceDone(conn) {
   if (conn.iceGatheringState === "complete") return Promise.resolve();
@@ -585,7 +596,7 @@ function status(t) { $("status").textContent = t; }
 function onEvent(m) {
   switch (m.type) {
     case "session.started":
-      t0 = performance.now(); status(""); deadline = t0 + CONFIG.maxMinutes * 60000; tick(); clockT = setInterval(tick, 1000); break;
+      t0 = performance.now(); status(""); deadline = t0 + allowed * 1000; tick(); clockT = setInterval(tick, 1000); break;
     case "session.input_transcript.delta": frag("S", m); lastYou = performance.now(); break;
     case "session.output_transcript.delta": frag("A", m); lastAi = performance.now(); aiText += m.delta || ""; readEmotion(); break;
     case "session.closed": if (!ending) finish(); break;
@@ -601,7 +612,7 @@ function frag(r, m) { if (typeof m.delta === "string") frags.push({ r, t: m.delt
 function tick() {
   const left = Math.max(0, deadline - performance.now()), s = Math.ceil(left / 1000);
   $("clock").textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")} left`;
-  if (s === 60) send({ type: "session.instructions.append", delegation_id: null, content: "Message from the app: about one minute is left. Start bringing the conversation to a natural close." });
+  if (s === 60 && allowed > 90) send({ type: "session.instructions.append", delegation_id: null, content: "Message from the app: about one minute is left. Start bringing the conversation to a natural close." });
   if (left <= 0 && !ending) finish();
 }
 
@@ -643,7 +654,7 @@ setInterval(() => {
 
 $("muteBtn").addEventListener("click", () => { muted = !muted; mic?.getAudioTracks().forEach((t) => (t.enabled = !muted)); $("muteBtn").textContent = muted ? "Unmute my microphone" : "Mute my microphone"; });
 $("endBtn").addEventListener("click", () => { if (!$("endBtn").onclick) finish(); });
-$("againBtn").addEventListener("click", () => { openStage(); start(); });
+$("againBtn").addEventListener("click", () => begin(who));
 $("otherBtn").addEventListener("click", closeStage);
 addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("stage").hidden && !$("coachView").hidden) closeStage(); });
 
@@ -657,8 +668,15 @@ function cleanup() {
   try { dc?.close(); } catch {} try { pc?.close(); } catch {} mic?.getTracks().forEach((t) => t.stop());
   try { audioCtx?.close(); } catch {} anim?.stop(); anim = null; pc = dc = mic = audioCtx = analyser = null; $("voice").srcObject = null;
 }
+// Tell the server the conversation is over, so unused minutes go back to the guest code.
+function reportEnd() {
+  if (!ticket) return; const b = JSON.stringify({ end: ticket }); fbTicket = ticket; ticket = null;
+  if (!(navigator.sendBeacon && navigator.sendBeacon("/api/session", new Blob([b], { type: "application/json" })))) fetch("/api/session", { method: "POST", headers: { "content-type": "application/json" }, body: b, keepalive: true }).catch(() => {});
+}
+addEventListener("pagehide", () => { if (ticket) { cleanup(); reportEnd(); } });
+let fbTicket = null;
 async function finish() {
-  if (ending) return; ending = true; $("endBtn").disabled = true; cleanup();
+  if (ending) return; ending = true; $("endBtn").disabled = true; cleanup(); reportEnd();
   const c = CAST[who], tx = transcript();
   $("liveView").hidden = true; $("coachView").hidden = false; $("clock").textContent = ""; $("cTx").textContent = tx.shown || "(Nothing was said.)";
   if (!c.feedback) {
@@ -669,8 +687,8 @@ async function finish() {
   $("cBody").innerHTML = `<div class="wait"><div class="spin"></div><div><b>Reading back your conversation</b><p style="color:var(--muted)">This usually takes under a minute.</p></div></div>`;
   if (tx.plain.replace(/^[SA]: /gm, "").trim().length < 40) { $("cTitle").textContent = "That was a quick one."; $("cBody").innerHTML = "<p>The conversation was too short for coaching notes. Try again and talk a little longer.</p>"; return; }
   try {
-    let r = await post("/api/feedback", { code, character: who, transcript: tx.plain });
-    const id = r.id; for (let i = 0; i < 90; i++) { await new Promise((ok) => setTimeout(ok, 2000)); r = await post("/api/feedback", { code, poll: id }); if (r.status !== "queued" && r.status !== "in_progress") break; }
+    let r = await post("/api/feedback", { ticket: fbTicket, character: who, transcript: tx.plain });
+    const id = r.id; for (let i = 0; i < 90; i++) { await new Promise((ok) => setTimeout(ok, 2000)); r = await post("/api/feedback", { ticket: fbTicket, poll: id }); if (r.status !== "queued" && r.status !== "in_progress") break; }
     const fb = JSON.parse(r.text || "{}"); renderCoach(fb);
   } catch (err) { $("cTitle").textContent = "Notes unavailable"; $("cBody").innerHTML = `<p>${esc(err.message || "Something went wrong writing your notes.")} Your transcript is below.</p>`; }
 }
